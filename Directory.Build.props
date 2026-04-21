@@ -1,0 +1,44 @@
+<Project>
+  <!-- NuGet 包公共元数据 -->
+  <PropertyGroup>
+    <Authors>L8CHAT</Authors>
+    <Company>L8CHAT</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/L8CHAT/gaming-dotnet-sdk</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/L8CHAT/gaming-dotnet-sdk</PackageProjectUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel Condition="'$(MSBuildProjectExtension)' == '.csproj'">latest</AnalysisLevel>
+    <!-- 启用Roslyn编译器严格模式 -->
+    <Features>strict;nullablePublicOnly</Features>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <!-- 默认情况下，SDK 为 5.0 或更高版本生成 ref 程序集 -->
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <NoWarn>CS1951;NU1902;NU1903;NU1904</NoWarn>
+    <!-- 输出 Source Generator 生成的文件 -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SharedSourceDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'src\Common'))</SharedSourceDir>
+    <RepositoryEngineeringRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', 'eng'))</RepositoryEngineeringRoot>
+  </PropertyGroup>
+
+  <!-- Source Generator 需要这些属性可见 -->
+  <ItemGroup>
+    <CompilerVisibleProperty Include="OutputType" />
+  </ItemGroup>
+
+  <Import Project="$(RepositoryEngineeringRoot)Versions.props" />
+
+</Project>

@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace></RootNamespace>
+    <AssemblyName>Feivoo.Gaming.Grpc</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <Title>Feivoo Gaming Grpc</Title>
+    <Description>Feivoo Gaming 共享 gRPC 运行时（Protobuf 生成代码 + 消息编号生成 + 请求-响应协调）。供 GrpcClient 和 GrpcServer.Abstractions 内部依赖，通常无需直接引用。</Description>
+    <PackageTags>grpc;gaming;feivoo;protobuf;shared</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.16.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+    <PackageReference Include="Grpc.Core.Api" Version="2.67.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.70.0" PrivateAssets="all">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="../../protos/protos/common/**/*.proto"
+              ProtoRoot="../../protos/protos"
+              AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
+              GrpcServices="None" />
+
+    <Protobuf Include="../../protos/protos/messages/**/*.proto"
+              ProtoRoot="../../protos/protos"
+              AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
+              GrpcServices="None" />
+
+    <!-- Envelope 与 service stub 仅 SDK 包内可见，业务方不可直接构造/调用 -->
+    <Protobuf Include="../../protos/protos/client-message.proto;../../protos/protos/server-message.proto"
+              ProtoRoot="../../protos/protos"
+              AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
+              GrpcServices="None"
+              Access="Internal" />
+
+    <Protobuf Include="../../protos/protos/message.service.proto"
+              ProtoRoot="../../protos/protos"
+              AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
+              GrpcServices="Both"
+              Access="Internal" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="../../protos/protos/**/*.proto" Pack="true" PackagePath="content/protos" Link="protos/%(RecursiveDir)%(Filename)%(Extension)" />
+    <None Include="Feivoo.Gaming.Grpc.targets" Pack="true" PackagePath="build" />
+  </ItemGroup>
+
+</Project>

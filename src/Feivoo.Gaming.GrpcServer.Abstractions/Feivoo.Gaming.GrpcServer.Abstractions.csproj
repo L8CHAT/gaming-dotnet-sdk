@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace></RootNamespace>
+    <AssemblyName>Feivoo.Gaming.GrpcServer.Abstractions</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <PackageId>Feivoo.Gaming.GrpcServer.Abstractions</PackageId>
+    <Title>Feivoo Gaming gRPC Server Abstractions</Title>
+    <Description>Feivoo Gaming .NET 服务端 SDK。提供 gRPC 双向流服务实现、命令分发、会话管理及 DI 集成。实现 IGamingServerHandler 与 IGamingServerAuthenticator 即可接入。</Description>
+    <PackageTags>grpc;gaming;feivoo;server;sdk;aspnetcore;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore.Server" Version="2.71.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Feivoo.Gaming.Grpc\Feivoo.Gaming.Grpc.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+  </PropertyGroup>
+
+  <!-- Adds IsExternalInit to gen builds. -->
+  <ItemGroup Condition="'$(LangVersion)' == 'latest'">
+    <Compile Include="$(SharedSourceDir)CompilerServices\IsExternalInit.cs" Link="System\Runtime\CompilerServices\IsExternalInit.cs" />
+    <Compile Include="$(SharedSourceDir)System\EmbeddedResource.cs" Link="System\EmbeddedResource.cs" />
+  </ItemGroup>
+</Project>

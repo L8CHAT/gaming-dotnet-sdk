@@ -1,0 +1,70 @@
+name: Dotnet SDK Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ./GrpcSdk.sln
+
+      - name: Pack
+        run: dotnet pack ./GrpcSdk.sln -c Release --no-restore -o ./artifacts
+
+      - name: Configure GitHub Packages source
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.L8CHAT_PKG }}
+        run: |
+          dotnet nuget remove source github 2>/dev/null || true
+          dotnet nuget add source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --name github \
+            --username "${{ github.repository_owner }}" \
+            --password "$NUGET_AUTH_TOKEN" \
+            --store-password-in-clear-text
+
+      - name: Publish to GitHub Packages
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.L8CHAT_PKG }}
+        run: dotnet nuget push "./artifacts/*.nupkg" --source github --api-key "$NUGET_AUTH_TOKEN" --skip-duplicate
+
+      - name: Extract changelog for this version
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          BODY=$(awk "/^## \[${VERSION}\]/{found=1; next} found && /^## \[/{exit} found{print}" CHANGELOG.md)
+          {
+            echo "body<<EOF"
+            echo "$BODY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish Release Asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.changelog.outputs.body }}
+          files: ./artifacts/*.nupkg

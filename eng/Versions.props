@@ -1,0 +1,44 @@
+<Project>
+
+  <PropertyGroup>
+
+    <!-- 项目版本 -->
+    <ProductVersion>1.0.0</ProductVersion>
+    <!-- 文件版本号 -->
+    <MajorVersion>1</MajorVersion>
+    <MinorVersion>0</MinorVersion>
+    <PatchVersion>0</PatchVersion>
+    <SdkBandVersion>1.0.1</SdkBandVersion>
+    <PreReleaseVersionLabel>beta</PreReleaseVersionLabel>
+    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
+    <!-- 设置程序集版本以与主要和次要版本保持一致，至于补丁和修订，如果提供服务，则应手动更新每个程序集。 -->
+    <AssemblyVersion>$(MajorVersion).$(MinorVersion).0.0</AssemblyVersion>
+    <!-- 启用以删除预发布标签 -->
+    <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
+    <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
+
+    <UsingToolMicrosoftNetILLinkTasks>true</UsingToolMicrosoftNetILLinkTasks>
+    <UsingToolIbcOptimization>false</UsingToolIbcOptimization>
+    <UsingToolXliff>false</UsingToolXliff>
+    <LastReleasedStableAssemblyVersion>$(AssemblyVersion)</LastReleasedStableAssemblyVersion>
+    <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectServicingConfiguration Include="Microsoft.NETCore.App.Ref" PatchVersion="0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- For source generator support we need to target multiple versions of Rolsyn in order to be able to run on older versions of Roslyn -->
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion_3_11>3.11.0</MicrosoftCodeAnalysisCSharpWorkspacesVersion_3_11>
+    <MicrosoftCodeAnalysisCSharpWorkspacesVersion>4.0.1</MicrosoftCodeAnalysisCSharpWorkspacesVersion>
+    <MicrosoftCodeAnalysisVersion>4.0.1</MicrosoftCodeAnalysisVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- Code analysis dependencies -->
+    <MicrosoftCodeAnalysisAnalyzersVersion>3.3.2</MicrosoftCodeAnalysisAnalyzersVersion>
+    <MicrosoftCodeAnalysisNetAnalyzersVersion>6.0.0</MicrosoftCodeAnalysisNetAnalyzersVersion>
+    <MicrosoftCodeAnalysisCSharpCodeStyleVersion>4.1.0</MicrosoftCodeAnalysisCSharpCodeStyleVersion>
+    <MicrosoftCodeAnalysisCSharpVersion>4.1.0</MicrosoftCodeAnalysisCSharpVersion>
+    <StyleCopAnalyzersVersion>1.1.118</StyleCopAnalyzersVersion>
+  </PropertyGroup>
+</Project>
