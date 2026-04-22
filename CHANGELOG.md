@@ -4,7 +4,20 @@
 
 ## [未发布]
 
-## [1.0.0] - 2026-04-21
+## [1.1.0] - 2026-04-22
+
+基于 `gaming-protos` 1.1.0：把返水/积分领域拆分为独立的 `Cashback` 与 `PointAward`，并在结算流程中真正填充 `OrderSettlement.Rewards`。
+
+### 变更
+
+- `OrderSettlement` 新增 `Rewards` 字段（`Points[]` + `Cashbacks[]`）。
+- 单笔 `OrderSettle` 推送与整期 `IssueFinished` 公告**都会**携带真实奖励数据；服务端在结算阶段一次性算好并随事件透传，**与商户在线状态无关**——商户离线/单笔 push 失败也不会影响公告里的奖励完整性。
+- `ClaimAck` 系列响应（领取返水/全部领取）改为返回 `Rewards`。
+
+### 移除
+
+- 删除 `Rebate` / `RebateType`（被 `Cashback` + `PointAward` 替代）。商户消费方需要把旧字段读取改成读 `Rewards.Points` / `Rewards.Cashbacks`。
+
 
 第一个面向生产的正式发布版本，基于扁平 envelope 架构（`gaming-protos` v1.0.0）。
 
