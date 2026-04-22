@@ -4,6 +4,21 @@
 
 ## [未发布]
 
+## [1.2.0] - 2026-04-22
+
+基于 `gaming-protos` 1.2.0：为 `ChannelMessageSubmit` 同步响应补全强类型业务拒绝通道。
+
+### 新增
+
+- `ResultErrorCode.RuleViolation` (2004)：业务规则拒绝（限额、对冲、风控、未配置玩法等）。
+- `ChannelMessageHandled.Rejection` (字段号 3，类型 `ResultFailure`)：拒绝时**只**填该字段，`Intent` 留 `Unknown`、`Data` 留空。
+
+### 兼容性
+
+- 协议层完全向后兼容（仅新增字段号 3、新增枚举值 2004）。
+- 老版本商户 SDK 解 Ack 时忽略 `rejection`，仍可消费 `intent`/`data`；过渡期内服务端可同时填两份。
+- 推荐迁移：商户 SDK 优先判断 `Handled.Rejection != null`，再消费 `Intent`/`Data`。
+
 ## [1.1.0] - 2026-04-22
 
 基于 `gaming-protos` 1.1.0：把返水/积分领域拆分为独立的 `Cashback` 与 `PointAward`，并在结算流程中真正填充 `OrderSettlement.Rewards`。
