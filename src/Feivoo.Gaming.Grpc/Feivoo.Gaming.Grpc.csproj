@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -21,32 +21,33 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="../../protos/protos/common/**/*.proto"
-              ProtoRoot="../../protos/protos"
+    <Protobuf Include="../../protos/feivoo/gaming/common/**/*.proto"
+              ProtoRoot="../../protos"
               AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
               GrpcServices="None" />
 
-    <Protobuf Include="../../protos/protos/messages/**/*.proto"
-              ProtoRoot="../../protos/protos"
+    <Protobuf Include="../../protos/feivoo/gaming/messages/**/*.proto"
+              ProtoRoot="../../protos"
               AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
               GrpcServices="None" />
 
     <!-- Envelope 与 service stub 仅 SDK 包内可见，业务方不可直接构造/调用 -->
-    <Protobuf Include="../../protos/protos/client-message.proto;../../protos/protos/server-message.proto"
-              ProtoRoot="../../protos/protos"
+    <Protobuf Include="../../protos/feivoo/gaming/client-message.proto;../../protos/feivoo/gaming/server-message.proto"
+              ProtoRoot="../../protos"
               AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
               GrpcServices="None"
               Access="Internal" />
 
-    <Protobuf Include="../../protos/protos/message.service.proto"
-              ProtoRoot="../../protos/protos"
+    <Protobuf Include="../../protos/feivoo/gaming/message.service.proto"
+              ProtoRoot="../../protos"
               AdditionalImportDirs="$(GoogleApiCommonProtos_ProtosPath)"
               GrpcServices="Both"
               Access="Internal" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../../protos/protos/**/*.proto" Pack="true" PackagePath="content/protos" Link="protos/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- 打包时保留 feivoo/... 层级，使消费者可用 feivoo/gaming/... import -->
+    <None Include="../../protos/feivoo/**/*.proto" Pack="true" PackagePath="content/protos/feivoo" Link="protos/feivoo/%(RecursiveDir)%(Filename)%(Extension)" />
     <None Include="Feivoo.Gaming.Grpc.targets" Pack="true" PackagePath="build" />
   </ItemGroup>
 
