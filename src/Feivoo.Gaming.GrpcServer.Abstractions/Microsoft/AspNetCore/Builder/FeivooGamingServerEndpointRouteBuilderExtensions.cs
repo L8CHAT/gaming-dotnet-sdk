@@ -1,16 +1,22 @@
-using Feivoo.Gaming.GrpcServer;
-using Grpc.AspNetCore.Server;
 using Microsoft.AspNetCore.Routing;
+using Vertex.Transport.Grpc;
 
 namespace Microsoft.AspNetCore.Builder;
 
-/// <summary>Feivoo Gaming 服务端 endpoint 挂载扩展。</summary>
+/// <summary>
+/// Endpoint routing extensions for the Feivoo Gaming gRPC server.
+/// </summary>
 public static class FeivooGamingServerEndpointRouteBuilderExtensions
 {
-    /// <summary>挂载 gRPC endpoint。等价于 <c>endpoints.MapGrpcService&lt;MessageServiceImpl&gt;()</c>。</summary>
-    public static GrpcServiceEndpointConventionBuilder MapFeivooGamingServer(this IEndpointRouteBuilder endpoints)
+    /// <summary>
+    /// Maps the Vertex bidi gRPC service that carries the Gaming messaging
+    /// channel. Requires <c>AddFeivooGamingServer</c> to have been called
+    /// during service registration.
+    /// </summary>
+    public static IEndpointConventionBuilder MapFeivooGamingServer(
+        this IEndpointRouteBuilder endpoints)
     {
         if (endpoints is null) throw new ArgumentNullException(nameof(endpoints));
-        return endpoints.MapGrpcService<MessageServiceImpl>();
+        return endpoints.MapGrpcService<BidiServiceImpl>();
     }
 }

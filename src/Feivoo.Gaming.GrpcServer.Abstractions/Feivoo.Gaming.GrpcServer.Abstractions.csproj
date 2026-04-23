@@ -24,6 +24,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Feivoo.Gaming.Grpc\Feivoo.Gaming.Grpc.csproj" />
+    <!-- Vertex (dev-time ProjectReference via sibling checkout). When the
+         Abstractions ship as NuGet, these become PackageReferences to
+         published Vertex.* packages. -->
+    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Messaging\Vertex.Messaging.csproj" />
+    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Transport.Grpc\Vertex.Transport.Grpc.csproj" />
   </ItemGroup>
 
 </Project>
