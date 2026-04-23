@@ -156,10 +156,20 @@ internal sealed class GamingSession : IGamingSession
 
     internal async Task SendAsync(ServerMessage message, CancellationToken cancellationToken)
     {
+        // Wait on the lock honouring the caller's cancellation token; this is
+        // safe because the message has not yet touched the wire.
         await _writeLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            await _responseStream.WriteAsync(message, cancellationToken).ConfigureAwait(false);
+            // IMPORTANT: do NOT pass cancellationToken to WriteAsync. If the
+            // token cancels mid-write, gRPC will emit a RST_STREAM on the
+            // underlying HTTP/2 stream, permanently breaking this bidi
+            // session for every concurrent caller — a single timed-out
+            // request would silently kill the entire connection. Once we
+            // hold _writeLock the message must be flushed to completion;
+            // any actual stream-level termination will surface to the read
+            // loop separately.
+            await _responseStream.WriteAsync(message).ConfigureAwait(false);
         }
         finally
         {

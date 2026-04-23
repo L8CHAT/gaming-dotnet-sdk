@@ -3,10 +3,10 @@
   <PropertyGroup>
 
     <!-- 项目版本 -->
-    <ProductVersion>1.2.0</ProductVersion>
+    <ProductVersion>1.3.0</ProductVersion>
     <!-- 文件版本号 -->
     <MajorVersion>1</MajorVersion>
-    <MinorVersion>2</MinorVersion>
+    <MinorVersion>3</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <SdkBandVersion>1.0.1</SdkBandVersion>
     <PreReleaseVersionLabel>beta</PreReleaseVersionLabel>

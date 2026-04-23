@@ -4,6 +4,36 @@
 
 ## [未发布]
 
+## [1.3.0] - 2026-04-23
+
+修复 bidi 流在「调用方超时取消写操作」时整条会话被打挂的协议层缺陷。
+
+### 修复（**关键 / 影响线上稳定性**）
+
+- **`GamingSession.SendAsync` 不再把 `cancellationToken` 传给 `IServerStreamWriter.WriteAsync`。**
+  旧实现一旦 CT 在写入过程中取消（最常见的触发：调用方对 reverse-direction 请求设置了超时，
+  超时到点 cancel；或客户端正好断线让 `context.CancellationToken` 翻转），gRPC 会向底层
+  HTTP/2 stream 发送 RST_STREAM，**整条 bidi 会话立即报废**：
+  - 同一连接上其他正在等待 Ack 的 RPC（订单结算、钱包查询、消息提交等）全部拿到
+    `IOException` / `RpcException`，被迫超时；
+  - merchant 侧表现为：一次慢回调 → 这条调用超时 → 之后**所有**业务都收不到任何回复，
+    整个通信完全中断，必须重连才能恢复。
+- 新实现：`SendAsync` 仅用 CT 等待 `_writeLock`；一旦拿到锁，必须把整条消息无中断地
+  落到 wire 上。流级别的真正终止由读循环统一负责检测和上报。
+
+### 兼容性
+
+- 协议无改动；API 签名无变化。
+- 行为变化仅在「写入过程中调用方取消 CT」这种异常路径出现：旧实现会**毁掉整条流**，
+  新实现会**完成本次写**然后让 CT 在下一次有意义的等待点（接收方处理完毕后调用方下一次
+  操作）抛出 `OperationCanceledException`。这与 gRPC 一贯的「不要在 WriteAsync 中途
+  取消」契约一致。
+
+### 备注
+
+- 与同日发布的 `gaming-go-sdk 1.3.0` 配套：Go SDK 同时修复了「单条 reply 发送失败
+  误把整条流拆掉」的对称缺陷，并把 reverse-direction handler 改为并发派发。
+
 ## [1.2.0] - 2026-04-22
 
 基于 `gaming-protos` 1.2.0：为 `ChannelMessageSubmit` 同步响应补全强类型业务拒绝通道。
