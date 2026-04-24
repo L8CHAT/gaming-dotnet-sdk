@@ -35,7 +35,7 @@ public static class FeivooGamingClientServiceCollectionExtensions
         services.TryAddSingleton<IGamingMessageHandler, THandler>();
         services.TryAddSingleton<GamingClient>(sp =>
         {
-            var options = sp.GetRequiredService<IOptions<GamingClientOptions>>().Value;
+            var options = sp.GetRequiredService<IOptions<GamingClientOptions>>();
             var handler = sp.GetRequiredService<IGamingMessageHandler>();
             var logger = sp.GetService<ILogger<GamingClient>>();
             return new GamingClient(options, handler, logger);

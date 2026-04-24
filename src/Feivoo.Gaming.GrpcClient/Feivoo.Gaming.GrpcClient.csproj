@@ -6,8 +6,8 @@
     <IsPackable>true</IsPackable>
     <PackageId>Feivoo.Gaming.GrpcClient</PackageId>
     <Title>Feivoo Gaming gRPC Client SDK</Title>
-    <Description>Feivoo Gaming .NET 客户端 SDK。通过 gRPC 双向流接入 Feivoo Gaming 平台，支持请求-响应与推送模式、自动重连（指数退避）及 DI 集成。</Description>
-    <PackageTags>grpc;gaming;feivoo;client;sdk;dotnet</PackageTags>
+    <Description>Feivoo Gaming .NET 客户端 SDK。基于 Vertex.Messaging + Vertex.Transport.Grpc 接入 Feivoo Gaming 平台，支持请求-响应、服务端推送事件、反向 RPC（订单/钱包查询）、自动重连（指数退避）及 DI 集成。v2.0.0 重写：wire 协议改为 Vertex 4-frame envelope。</Description>
+    <PackageTags>grpc;gaming;feivoo;client;sdk;dotnet;vertex</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
@@ -20,13 +20,18 @@
   <ItemGroup>
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
     <PackageReference Include="Grpc.Core.Api" Version="2.71.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Feivoo.Gaming.Grpc\Feivoo.Gaming.Grpc.csproj" />
+    <!-- Vertex: dev-time ProjectReference against sibling checkout. -->
+    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Messaging\Vertex.Messaging.csproj" />
+    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Transport.Grpc\Vertex.Transport.Grpc.csproj" />
   </ItemGroup>
 
 </Project>
