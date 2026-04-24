@@ -4,6 +4,12 @@
 
 ## [未发布]
 
+## [2.0.1] - 2026-04-24
+
+### Fixed
+
+- **`GamingSessionTracker` DI 构造失败**：v2.0.0 把 `ITransport` 当作 keyed service 注入（`[FromKeyedServices(GamingMessageChannel.Name)] ITransport`），但 Vertex 1.0.1 的 `AddGrpcServerTransport` 实际上是把 `ITransport` 注册为**普通 singleton** + 在 `ITransportRegistry` 里按名字注册。导致任何 `AddFeivooGamingServer<THandler, TAuth>()` 的宿主 `ServiceProvider` 构造时抛 `InvalidOperationException: Unable to resolve service for type 'Vertex.Transport.ITransport'`。改为通过 `ITransportRegistry.Get(GamingMessageChannel.Name)` 解析，与 Vertex DI 约定一致。
+
 ## [2.0.0] - 2026-04-24
 
 基于 Vertex.Messaging + Vertex.Transport.Grpc 的 SDK 重写。wire 协议从 oneof ClientMessage/ServerMessage 切换为 Vertex 4-frame envelope，并与 `feivoo-gaming-go-sdk 2.0.0` / `feivoo-gaming 2.0.0` 服务端配套。

@@ -31,13 +31,13 @@ internal sealed class GamingSessionTracker : IHostedService, IDisposable
     private EventHandler<PeerConnectionEvent>? _handler;
 
     public GamingSessionTracker(
-        [FromKeyedServices(GamingMessageChannel.Name)] ITransport transport,
+        ITransportRegistry transports,
         [FromKeyedServices(GamingMessageChannel.Name)] IMessageBus bus,
         [FromKeyedServices(GamingMessageChannel.Name)] IRpcClient rpc,
         IOptions<GamingServerOptions> options,
         ILogger<GamingSessionTracker> logger)
     {
-        _transport = transport;
+        _transport = transports.Get(GamingMessageChannel.Name);
         _bus = bus;
         _rpc = rpc;
         _options = options.Value;
