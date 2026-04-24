@@ -131,7 +131,7 @@ public sealed class GamingClient : IAsyncDisposable
             reg.RegisterRequest<ChannelQuery, ChannelQueryAck>();
             reg.RegisterRequest<ChannelList, ChannelListAck>();
             reg.RegisterRequest<ChannelDelete, ChannelDeleteAck>();
-            reg.RegisterRequest<ChannelMessageSubmit, ChannelMessageSubmitAck>();
+            reg.RegisterRequest<ChannelMessageSubmit, ChannelMessageHandled>();
             reg.RegisterRequest<ChannelMemberEnter, ChannelMemberEnterAck>();
             reg.RegisterRequest<ChannelMemberLeave, ChannelMemberLeaveAck>();
             reg.RegisterRequest<ChannelMemberQuery, ChannelMemberQueryAck>();
@@ -227,7 +227,20 @@ public sealed class GamingClient : IAsyncDisposable
     public Task<ChannelQueryAck> RequestAsync(ChannelQuery c, CancellationToken ct = default) => Invoke<ChannelQuery, ChannelQueryAck>(c, ct);
     public Task<ChannelListAck> RequestAsync(ChannelList c, CancellationToken ct = default) => Invoke<ChannelList, ChannelListAck>(c, ct);
     public Task<ChannelDeleteAck> RequestAsync(ChannelDelete c, CancellationToken ct = default) => Invoke<ChannelDelete, ChannelDeleteAck>(c, ct);
-    public Task<ChannelMessageSubmitAck> RequestAsync(ChannelMessageSubmit c, CancellationToken ct = default) => Invoke<ChannelMessageSubmit, ChannelMessageSubmitAck>(c, ct);
+    /// <summary>
+    /// 商户上送频道消息（用户打字 → 下注/取消/查询）。两类失败统一抛 <see cref="GamingRemoteException"/>：
+    /// 服务端抛 GamingRemoteException 走 gRPC trailer 回到调用方；服务端返回 <see cref="ChannelMessageHandled.Rejection"/> in-band
+    /// 业务拒绝时 SDK 也包装成同一个异常类型——调用方只需 try/catch 一次。
+    /// </summary>
+    public async Task<ChannelMessageHandled> RequestAsync(ChannelMessageSubmit c, CancellationToken ct = default)
+    {
+        var handled = await Invoke<ChannelMessageSubmit, ChannelMessageHandled>(c, ct).ConfigureAwait(false);
+        if (handled.Rejection is { } rej)
+        {
+            throw new GamingRemoteException(rej.Code, rej.Message ?? string.Empty);
+        }
+        return handled;
+    }
     public Task<ChannelMemberEnterAck> RequestAsync(ChannelMemberEnter c, CancellationToken ct = default) => Invoke<ChannelMemberEnter, ChannelMemberEnterAck>(c, ct);
     public Task<ChannelMemberLeaveAck> RequestAsync(ChannelMemberLeave c, CancellationToken ct = default) => Invoke<ChannelMemberLeave, ChannelMemberLeaveAck>(c, ct);
     public Task<ChannelMemberQueryAck> RequestAsync(ChannelMemberQuery c, CancellationToken ct = default) => Invoke<ChannelMemberQuery, ChannelMemberQueryAck>(c, ct);

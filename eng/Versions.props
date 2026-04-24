@@ -7,10 +7,10 @@
          IGamingServerHandler and reshapes as Vertex IRpcHandler<> + the
          AddFeivooGamingServer DI extension. Breaking for any external
          consumer of v1.3.0. -->
-    <ProductVersion>2.0.1</ProductVersion>
+    <ProductVersion>2.1.0</ProductVersion>
     <MajorVersion>2</MajorVersion>
-    <MinorVersion>0</MinorVersion>
-    <PatchVersion>1</PatchVersion>
+    <MinorVersion>1</MinorVersion>
+    <PatchVersion>0</PatchVersion>
     <SdkBandVersion>1.0.1</SdkBandVersion>
     <PreReleaseVersionLabel>beta</PreReleaseVersionLabel>
     <PreReleaseVersionIteration>1</PreReleaseVersionIteration>

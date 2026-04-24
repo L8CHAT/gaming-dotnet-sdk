@@ -4,6 +4,28 @@
 
 ## [未发布]
 
+## [2.1.0] - 2026-04-24
+
+追赶 `gaming-protos 1.1.0` 的新错误码，并修正 `ChannelMessageSubmit` 客户端响应类型的历史性错配。
+
+### 协议对齐（基于 gaming-protos 1.1.0）
+
+- **新增 4 个错误码**（additive，向下兼容）：
+  - `RATE_LIMITED` (1009) — 调用频率超限
+  - `UNAVAILABLE` (1010) — 服务暂时不可用
+  - `QUOTA_EXHAUSTED` (3004) — 下注/订单配额耗尽
+  - `ACCOUNT_FROZEN` (4002) — 商户账户被风控冻结
+- `ResultFailure` 增加 `google.protobuf.Any details` 字段——结构化附加信息（按 code 决定类型）。未识别 details 应忽略。
+
+### Fixed
+
+- **`GamingClient.RequestAsync(ChannelMessageSubmit)`**：v2.0.0 错误地把响应类型注册为 `ChannelMessageSubmitAck`（proto 里的 oneof 包装遗留物），但服务端 `IRpcHandler<ChannelMessageSubmit, ChannelMessageHandled>` 实际返回的是 `ChannelMessageHandled`——任何 .NET 客户端调用 `SubmitChannelMessage` 都会在反序列化时失败。现已对齐为 `ChannelMessageHandled`。
+- **In-band `Rejection` 统一翻译成 `GamingRemoteException`**：服务端通过 `ChannelMessageHandled.Rejection` 返回的业务拒绝（封盘、规则违规、余额不足等），客户端不再需要检查响应体字段——SDK 直接抛出和 gRPC trailer 同一个异常类型。调用方 `try catch GamingRemoteException`，用 `ErrorCode` 分流即可，不必关心服务端用哪条通道发错误。
+
+### 协议契约（新增文档）
+
+- `protos/docs/errors.md` 明确两层错误边界（transport vs 服务端裁决），以及 SDK 把两条通道收敛为同一个异常类型的约定。
+
 ## [2.0.1] - 2026-04-24
 
 ### Fixed
