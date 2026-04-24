@@ -26,6 +26,16 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Authenticate Vertex NuGet source
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          dotnet nuget update source vertex \
+            --username "${{ github.actor }}" \
+            --password "$GH_PAT" \
+            --store-password-in-clear-text \
+            --configfile ./NuGet.Config
+
       - name: Restore
         run: dotnet restore ./GrpcSdk.sln
 
@@ -35,20 +45,20 @@ jobs:
       - name: Configure GitHub Packages source
         if: startsWith(github.ref, 'refs/tags/v')
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.L8CHAT_PKG }}
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           dotnet nuget remove source github 2>/dev/null || true
           dotnet nuget add source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
             --name github \
             --username "${{ github.repository_owner }}" \
-            --password "$NUGET_AUTH_TOKEN" \
+            --password "$GH_PAT" \
             --store-password-in-clear-text
 
       - name: Publish to GitHub Packages
         if: startsWith(github.ref, 'refs/tags/v')
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.L8CHAT_PKG }}
-        run: dotnet nuget push "./artifacts/*.nupkg" --source github --api-key "$NUGET_AUTH_TOKEN" --skip-duplicate
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: dotnet nuget push "./artifacts/*.nupkg" --source github --api-key "$GH_PAT" --skip-duplicate
 
       - name: Extract changelog for this version
         if: startsWith(github.ref, 'refs/tags/v')

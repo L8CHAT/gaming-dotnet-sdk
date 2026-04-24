@@ -4,6 +4,36 @@
 
 ## [未发布]
 
+## [2.0.0] - 2026-04-24
+
+基于 Vertex.Messaging + Vertex.Transport.Grpc 的 SDK 重写。wire 协议从 oneof ClientMessage/ServerMessage 切换为 Vertex 4-frame envelope，并与 `feivoo-gaming-go-sdk 2.0.0` / `feivoo-gaming 2.0.0` 服务端配套。
+
+### Breaking changes
+
+- **`Feivoo.Gaming.GrpcServer.Abstractions`**
+  - 移除 `IGamingServerHandler`、`WalletServiceImpl`、`ClientMessageDispatcher`、`HandlerInvoker`、`MessageIdGenerator`、`RequestResponseCoordinator`、具体 `GamingSession`、`AuthHeaders`；改为 19 个强类型 `Vertex.Messaging.IRpcHandler<TReq, TResp>`（`MerchantOnlineNotify` / `OrderCreate` / `OrderSettle` / `OrderCancel` / `OrderSubmit` / `OrderRevoke` / `WalletBalanceQuery` / `WalletAllBalancesQuery` / `WalletBalanceAdd` / `WalletBalanceSubtract` / `WalletTransfer` / `WalletFreeze` / `WalletUnfreeze` / `WalletFreezeWithTransfer` / `WalletUnfreezeWithTransfer` / `WalletFrozenQuery` / `ChannelMessageSubmit` / `WalletBalanceChangedNotify` / `LotteryOrderCancelingHandle`），请求/响应类型直接使用 `Feivoo.Gaming.Grpc.Proto` 下的 proto-generated 类型。
+  - DI 入口：`AddFeivooGamingServer<THandler, TAuth>()` + `MapFeivooGamingServer()`，内部等价于 `AddGrpcServerTransport` + `AddMessagingChannel("feivoo-gaming-message")` + 19× `AddRpcHandler<TReq, TResp, THandler>`。
+  - `IGamingSession` 改为 `VertexGamingSession`：基于 `IMessageBus.PublishAsync` + `IRpcClient.InvokeAsync` 按 `PeerId`（= `x-tenant-id`）寻址，不再暴露具体 stream writer。
+  - 身份校验迁移到 `GamingAuthInterceptor`（`x-tenant-id` / `x-secret-key` metadata + `x-vertex-peer-id=tenant-id`）。
+  - 连接生命周期迁移到 `GamingSessionTracker`（`IHostedService`），监听 `PeerConnectionChanged` 事件触发 `OnSessionConnected` / `OnSessionDisconnected` 回调。
+
+- **`Feivoo.Gaming.GrpcClient`**
+  - `GamingClient` 重写为 Vertex 消息通道客户端；19 个 `RequestAsync` 改为 `InvokeAsync<TReq, TResp>` 语义，请求/响应全部使用 `Feivoo.Gaming.Grpc.Proto` 下的 proto-generated 类型（v1.3.0 的手写 DTO 已移除）。
+  - **19 个 `PushAsync*` 方法被移除**（v1.3.0 的 fire-and-forget 单向通知在 Vertex envelope 下不再需要；所有客户端→服务端语义统一为 `Invoke` 请求响应）。
+  - 12 个服务端事件改为 `Subscribe<T>` 模式扇出到每事件回调；5 个服务端反向 RPC（订单下单 / 结算 / 取消 / 订单 Revoke / 钱包查询）改为 Vertex `IRpcHandler<T>` 适配器。
+  - 结构化错误码：服务端抛出的 `GamingRemoteException` 以 `"{CodeName}|{UserMessage}"` 形式编码在 gRPC trailer，客户端解码为 `GamingRemoteException.ErrorCode` + `UserMessage` 两个属性（v1.3.0 仅暴露纯文本消息）。
+
+### 迁移要点
+
+- 服务端实现从 `IGamingServerHandler` 迁移到 19 个 `IRpcHandler<>`：可以用一个 `sealed class` 显式实现 19 个接口；原来的 switch-case 逻辑拆成每个接口一个 `HandleAsync`。
+- 服务端侧获取调用方身份：不再从 `session.AccessId` 取，改为 `ctx.From.Value`（Vertex `PeerId`，值即 tenant-id）。
+- 客户端 `PushAsync*` 调用需要改写为对应 `RequestAsync*`。确有必要的 fire-and-forget 可自行 `Task.Run(() => client.RequestAsync...)` 包装，但建议检查是否真的不需要 ack。
+
+### 依赖
+
+- 新增：`Vertex.Messaging` 1.0.1、`Vertex.Transport.Grpc` 1.0.1。
+- Grpc.Net.Client 升到 2.71.0，Microsoft.Extensions.* 升到 10.0.0。
+
 ## [1.3.0] - 2026-04-23
 
 修复 bidi 流在「调用方超时取消写操作」时整条会话被打挂的协议层缺陷。

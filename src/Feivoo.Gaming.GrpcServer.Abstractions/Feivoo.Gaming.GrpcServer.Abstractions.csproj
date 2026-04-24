@@ -20,15 +20,12 @@
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore.Server" Version="2.71.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Vertex.Messaging" Version="1.0.1" />
+    <PackageReference Include="Vertex.Transport.Grpc" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Feivoo.Gaming.Grpc\Feivoo.Gaming.Grpc.csproj" />
-    <!-- Vertex (dev-time ProjectReference via sibling checkout). When the
-         Abstractions ship as NuGet, these become PackageReferences to
-         published Vertex.* packages. -->
-    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Messaging\Vertex.Messaging.csproj" />
-    <ProjectReference Include="..\..\..\..\dengxuan\vertex-dotnet\src\Vertex.Transport.Grpc\Vertex.Transport.Grpc.csproj" />
   </ItemGroup>
 
 </Project>
