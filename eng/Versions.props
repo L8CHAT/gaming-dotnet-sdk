@@ -7,12 +7,12 @@
          IGamingServerHandler and reshapes as Vertex IRpcHandler<> + the
          AddFeivooGamingServer DI extension. Breaking for any external
          consumer of v1.3.0. -->
-    <ProductVersion>2.1.0</ProductVersion>
+    <ProductVersion>2.2.0-rc.1</ProductVersion>
     <MajorVersion>2</MajorVersion>
-    <MinorVersion>1</MinorVersion>
+    <MinorVersion>2</MinorVersion>
     <PatchVersion>0</PatchVersion>
     <SdkBandVersion>1.0.1</SdkBandVersion>
-    <PreReleaseVersionLabel>beta</PreReleaseVersionLabel>
+    <PreReleaseVersionLabel>rc</PreReleaseVersionLabel>
     <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
     <!-- 设置程序集版本以与主要和次要版本保持一致，至于补丁和修订，如果提供服务，则应手动更新每个程序集。 -->
     <AssemblyVersion>$(MajorVersion).$(MinorVersion).0.0</AssemblyVersion>
@@ -24,7 +24,11 @@
     <UsingToolIbcOptimization>false</UsingToolIbcOptimization>
     <UsingToolXliff>false</UsingToolXliff>
     <LastReleasedStableAssemblyVersion>$(AssemblyVersion)</LastReleasedStableAssemblyVersion>
-    <PackageVersion>$(MajorVersion).$(MinorVersion).$(PatchVersion)</PackageVersion>
+    <!-- StabilizePackageVersion=true 时去掉 prerelease 后缀打 stable；
+         默认 false 即 prerelease 包（rc.N）。打 stable tag 前 workflow 会传 /p:StabilizePackageVersion=true，
+         或人工把 PreReleaseVersionLabel 留空。 -->
+    <PackageVersion Condition="'$(StabilizePackageVersion)' == 'true' Or '$(PreReleaseVersionLabel)' == ''">$(MajorVersion).$(MinorVersion).$(PatchVersion)</PackageVersion>
+    <PackageVersion Condition="'$(StabilizePackageVersion)' != 'true' And '$(PreReleaseVersionLabel)' != ''">$(MajorVersion).$(MinorVersion).$(PatchVersion)-$(PreReleaseVersionLabel).$(PreReleaseVersionIteration)</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

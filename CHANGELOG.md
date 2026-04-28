@@ -4,6 +4,10 @@
 
 ## [未发布]
 
+## [2.2.0-rc.1] - 2026-04-29
+
+预发布版（prerelease）：服务端实现 + l8-game-server 集成验证用。验证通过后才升 stable `v2.2.0`。
+
 ### 协议对齐（基于 gaming-protos 1.3.0）
 
 - **3 个新 RPC 自动暴露**（protobuf 生成代码自动跟进，SDK 上层无需新增 wrapper）：
