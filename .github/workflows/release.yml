@@ -1,10 +1,28 @@
 name: Dotnet SDK Release
 
+# Trunk-based release engineering — see L8CHAT/CLAUDE.md §1-9
+#
+# Triggers:
+#   push: branches: [main]   → 滚动 prerelease 包 {Major}.{Minor}.{Patch}-main.{sha:0..7}
+#                              （NuGet 版本天然语义：2.2.0-main.* 比 2.2.0 小，
+#                              下游 floating range 自动跟新）
+#   push: tags: ['v*']       → stable 包 vX.Y.Z（不带后缀，且 release.yml 在 tag 不
+#                              带 `-` 时会强制 PreReleaseVersionLabel='' 走 stable）
+#   pull_request             → 仅 build/pack 验证，不 publish（per-PR 包不上 GitHub
+#                              Packages 避免污染；reviewer 拉 artifact 验证即可）
+#   workflow_dispatch        → 手动触发，按当前分支语义计算版本
+#
+# 版本号由 workflow 动态计算并通过 /p:Version + /p:PackageVersion 注入 dotnet pack；
+# 不依赖 eng/Versions.props 里 hardcoded 的 <PackageVersion>。
+
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags:
       - 'v*'
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -26,6 +44,52 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Compute package version
+        id: ver
+        shell: bash
+        run: |
+          # 从 eng/Versions.props 读出 base 版本号 (Major.Minor.Patch)，
+          # 不依赖 hardcoded <PackageVersion>（那个公式我们要绕过）。
+          BASE=$(grep -oP '(?<=<MajorVersion>)\d+(?=</MajorVersion>)' eng/Versions.props).$(grep -oP '(?<=<MinorVersion>)\d+(?=</MinorVersion>)' eng/Versions.props).$(grep -oP '(?<=<PatchVersion>)\d+(?=</PatchVersion>)' eng/Versions.props)
+          SHA="${GITHUB_SHA::7}"
+
+          case "${GITHUB_EVENT_NAME}" in
+            push)
+              if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+                # stable / prerelease tag: 直接用 tag 名作为版本（去掉 v 前缀）
+                VERSION="${GITHUB_REF_NAME#v}"
+                IS_PUBLISH="true"
+              elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
+                # main 滚动 prerelease：{base}-main.{sha}
+                VERSION="${BASE}-main.${SHA}"
+                IS_PUBLISH="true"
+              else
+                VERSION="${BASE}-dev.${SHA}"
+                IS_PUBLISH="false"
+              fi
+              ;;
+            pull_request)
+              VERSION="${BASE}-pr.${{ github.event.pull_request.number }}.${SHA}"
+              IS_PUBLISH="false"   # PR 包不 publish，避免污染 NuGet feed
+              ;;
+            workflow_dispatch)
+              VERSION="${BASE}-manual.${SHA}"
+              IS_PUBLISH="false"
+              ;;
+            schedule)
+              VERSION="${BASE}-nightly.$(date -u +%Y%m%d)"
+              IS_PUBLISH="true"
+              ;;
+            *)
+              VERSION="${BASE}-${GITHUB_EVENT_NAME}.${SHA}"
+              IS_PUBLISH="false"
+              ;;
+          esac
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "is_publish=${IS_PUBLISH}" >> "$GITHUB_OUTPUT"
+          echo "Computed version: ${VERSION} (publish=${IS_PUBLISH})"
+
       - name: Authenticate Vertex NuGet source
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
@@ -40,10 +104,20 @@ jobs:
         run: dotnet restore ./GrpcSdk.sln
 
       - name: Pack
-        run: dotnet pack ./GrpcSdk.sln -c Release --no-restore -o ./artifacts
+        run: |
+          # 把 stable tag 时强制 stabilize（去掉 prerelease label）；
+          # 滚动包 / pr 包则按 -main.{sha} / -pr.N.{sha} 等 prerelease 语义。
+          STABILIZE_FLAG=""
+          if [[ "${{ steps.ver.outputs.version }}" != *"-"* ]]; then
+            STABILIZE_FLAG="-p:StabilizePackageVersion=true"
+          fi
+          dotnet pack ./GrpcSdk.sln -c Release --no-restore -o ./artifacts \
+            -p:Version=${{ steps.ver.outputs.version }} \
+            -p:PackageVersion=${{ steps.ver.outputs.version }} \
+            $STABILIZE_FLAG
 
       - name: Configure GitHub Packages source
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.ver.outputs.is_publish == 'true'
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
@@ -55,7 +129,7 @@ jobs:
             --store-password-in-clear-text
 
       - name: Publish to GitHub Packages
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: steps.ver.outputs.is_publish == 'true'
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: dotnet nuget push "./artifacts/*.nupkg" --source github --api-key "$GH_PAT" --skip-duplicate
