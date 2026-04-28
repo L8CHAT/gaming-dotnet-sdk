@@ -60,28 +60,32 @@ jobs:
                 VERSION="${GITHUB_REF_NAME#v}"
                 IS_PUBLISH="true"
               elif [[ "${GITHUB_REF}" == refs/heads/main ]]; then
-                # main 滚动 prerelease：{base}-main.{sha}
-                VERSION="${BASE}-main.${SHA}"
+                # main 滚动 prerelease：{base}-main.{run_number}.{sha}
+                # run_number 单调递增确保 NuGet floating range 总能拿到最新；
+                # sha 后缀提供可追溯性。SemVer prerelease 比较：数值段按数值排序，
+                # 字符段按字典序，所以 "{main}.{N}.{sha}" 第二段决定胜负。
+                VERSION="${BASE}-main.${GITHUB_RUN_NUMBER}.${SHA}"
                 IS_PUBLISH="true"
               else
-                VERSION="${BASE}-dev.${SHA}"
+                VERSION="${BASE}-dev.${GITHUB_RUN_NUMBER}.${SHA}"
                 IS_PUBLISH="false"
               fi
               ;;
             pull_request)
-              VERSION="${BASE}-pr.${{ github.event.pull_request.number }}.${SHA}"
+              VERSION="${BASE}-pr.${{ github.event.pull_request.number }}.${GITHUB_RUN_NUMBER}.${SHA}"
               IS_PUBLISH="false"   # PR 包不 publish，避免污染 NuGet feed
               ;;
             workflow_dispatch)
-              VERSION="${BASE}-manual.${SHA}"
-              IS_PUBLISH="false"
+              # workflow_dispatch 走 main 滚动语义（手动触发 main rebuild 时也想覆盖最新）
+              VERSION="${BASE}-main.${GITHUB_RUN_NUMBER}.${SHA}"
+              IS_PUBLISH="true"
               ;;
             schedule)
-              VERSION="${BASE}-nightly.$(date -u +%Y%m%d)"
+              VERSION="${BASE}-nightly.$(date -u +%Y%m%d).${GITHUB_RUN_NUMBER}"
               IS_PUBLISH="true"
               ;;
             *)
-              VERSION="${BASE}-${GITHUB_EVENT_NAME}.${SHA}"
+              VERSION="${BASE}-${GITHUB_EVENT_NAME}.${GITHUB_RUN_NUMBER}.${SHA}"
               IS_PUBLISH="false"
               ;;
           esac

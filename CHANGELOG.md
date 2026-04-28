@@ -7,6 +7,10 @@
 > 工作流（参考 [组织级 CLAUDE.md §7](../CLAUDE.md)）：每个 PR 合 main 时作者在此段追加条目并带 PR 链接 `[#N](url)`；打 stable tag `vX.Y.Z` 时把本节标题改成 `[X.Y.Z] - YYYY-MM-DD`，再开一个空的 `[未发布]`。**prerelease tag (`-rc.N` / `-beta.N`) 不开新节**。
 > 滚动 prerelease 包（`{X.Y.Z}-main.{sha}`）由 `.github/workflows/release.yml` 在 `push: branches: [main]` 时自动产出，**不打 git tag**。下游消费方用 floating range 引用。
 
+### Fixed
+
+- **滚动 prerelease 版本号加 `run_number` 单调递增段** ([#8](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/8))。原版本号 `2.2.0-main.{sha:0..7}` 的 sha 段是 16 进制字符，按 SemVer prerelease 字典序比较：当存在多个滚动包时，NuGet floating range `2.2.0-main.*` 会取**字典序最大**的而不是**最新合 main** 的。例如 `c08837e` > `1f12e4f` > `0acbc86` 字典序，但实际是 PR #5 < PR #6 < PR #7 时间序——结果下游 floating 永远拉到 PR #5 旧版。修：版本号改 `{base}-main.{github.run_number}.{sha}`，run_number 是 GitHub Actions 给每次 workflow 跑的单调递增整数，按数值段比较胜出。pr / dev / nightly / workflow_dispatch 也补 run_number。
+
 ### 新增
 
 - **`AddFeivooGamingServer<THandler, TAuth>` 注册 3 个新 RPC** ([#7](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/7))：`ChannelConfigQuery` / `ChannelMemberPointBalanceQuery` / `ChannelMemberCashbackBalanceQuery`。新增 3 个 `where IRpcHandler<...>` 约束、3 个 `RegisterRequest<...>()`、3 个 `AddRpcHandler<...>()`。
