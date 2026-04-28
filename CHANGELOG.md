@@ -4,6 +4,20 @@
 
 ## [未发布]
 
+### 协议对齐（基于 gaming-protos 1.3.0）
+
+- **3 个新 RPC 自动暴露**（protobuf 生成代码自动跟进，SDK 上层无需新增 wrapper）：
+  - `ChannelConfigQuery` (slot 40) → `ChannelConfigQueryAck { ChannelConfig config }`
+  - `ChannelMemberPointBalanceQuery` (slot 41) → `ChannelMemberPointBalanceQueryAck { repeated PointBalance balances }`
+  - `ChannelMemberCashbackBalanceQuery` (slot 42) → `ChannelMemberCashbackBalanceQueryAck { repeated CashbackBalance balances }`
+- 新增值对象 `PointAccrualRule` / `CashbackRule` / `CashbackTurnoverBasis` enum / `PointBalance` / `CashbackBalance` / `ChannelConfig` 自动生成。
+- `CashbackTurnoverBasis` 数值（1=BetAmount / 2=Effective / 3=NetLoss）与 .NET 端 `Feivoo.Gaming.Shared.CashbackTurnoverBasis` 严格对齐。
+
+### 兼容性
+
+- 二进制兼容老 SDK：仅新增 oneof slot 40-42 + 新值对象；未触动既有字段编号。
+- 服务端实现 3 个 handler 后（Gaming 仓单独 PR），商户客户端调用 `RequestAsync(ChannelConfigQuery)` 等自动可用。
+
 ## [2.1.0] - 2026-04-24
 
 追赶 `gaming-protos 1.1.0` 的新错误码，并修正 `ChannelMessageSubmit` 客户端响应类型的历史性错配。
