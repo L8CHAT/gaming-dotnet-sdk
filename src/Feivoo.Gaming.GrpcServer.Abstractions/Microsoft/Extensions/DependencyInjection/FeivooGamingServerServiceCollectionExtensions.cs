@@ -45,6 +45,9 @@ public static class FeivooGamingServerServiceCollectionExtensions
             IRpcHandler<ChannelMemberRecentOrderQuery, ChannelMemberRecentOrderQueryAck>,
             IRpcHandler<ChannelMemberRebateClaim, ChannelMemberRebateClaimAck>,
             IRpcHandler<ChannelMemberAllRebatesClaim, ChannelMemberAllRebatesClaimAck>,
+            IRpcHandler<ChannelMemberPointBalanceQuery, ChannelMemberPointBalanceQueryAck>,
+            IRpcHandler<ChannelMemberCashbackBalanceQuery, ChannelMemberCashbackBalanceQueryAck>,
+            IRpcHandler<ChannelConfigQuery, ChannelConfigQueryAck>,
             IRpcHandler<WaitingOrderListQuery, WaitingOrderListQueryAck>,
             IRpcHandler<LotteryGameQuery, LotteryGameQueryAck>,
             IRpcHandler<LotteryGameList, LotteryGameListAck>,
@@ -83,6 +86,9 @@ public static class FeivooGamingServerServiceCollectionExtensions
             reg.RegisterRequest<ChannelMemberRecentOrderQuery, ChannelMemberRecentOrderQueryAck>();
             reg.RegisterRequest<ChannelMemberRebateClaim, ChannelMemberRebateClaimAck>();
             reg.RegisterRequest<ChannelMemberAllRebatesClaim, ChannelMemberAllRebatesClaimAck>();
+            reg.RegisterRequest<ChannelMemberPointBalanceQuery, ChannelMemberPointBalanceQueryAck>();
+            reg.RegisterRequest<ChannelMemberCashbackBalanceQuery, ChannelMemberCashbackBalanceQueryAck>();
+            reg.RegisterRequest<ChannelConfigQuery, ChannelConfigQueryAck>();
             reg.RegisterRequest<WaitingOrderListQuery, WaitingOrderListQueryAck>();
             reg.RegisterRequest<LotteryGameQuery, LotteryGameQueryAck>();
             reg.RegisterRequest<LotteryGameList, LotteryGameListAck>();
@@ -126,6 +132,9 @@ public static class FeivooGamingServerServiceCollectionExtensions
         services.AddRpcHandler<ChannelMemberRecentOrderQuery, ChannelMemberRecentOrderQueryAck, THandler>(GamingMessageChannel.Name);
         services.AddRpcHandler<ChannelMemberRebateClaim, ChannelMemberRebateClaimAck, THandler>(GamingMessageChannel.Name);
         services.AddRpcHandler<ChannelMemberAllRebatesClaim, ChannelMemberAllRebatesClaimAck, THandler>(GamingMessageChannel.Name);
+        services.AddRpcHandler<ChannelMemberPointBalanceQuery, ChannelMemberPointBalanceQueryAck, THandler>(GamingMessageChannel.Name);
+        services.AddRpcHandler<ChannelMemberCashbackBalanceQuery, ChannelMemberCashbackBalanceQueryAck, THandler>(GamingMessageChannel.Name);
+        services.AddRpcHandler<ChannelConfigQuery, ChannelConfigQueryAck, THandler>(GamingMessageChannel.Name);
         services.AddRpcHandler<WaitingOrderListQuery, WaitingOrderListQueryAck, THandler>(GamingMessageChannel.Name);
         services.AddRpcHandler<LotteryGameQuery, LotteryGameQueryAck, THandler>(GamingMessageChannel.Name);
         services.AddRpcHandler<LotteryGameList, LotteryGameListAck, THandler>(GamingMessageChannel.Name);

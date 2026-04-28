@@ -7,6 +7,12 @@
 > 工作流（参考 [组织级 CLAUDE.md §7](../CLAUDE.md)）：每个 PR 合 main 时作者在此段追加条目并带 PR 链接 `[#N](url)`；打 stable tag `vX.Y.Z` 时把本节标题改成 `[X.Y.Z] - YYYY-MM-DD`，再开一个空的 `[未发布]`。**prerelease tag (`-rc.N` / `-beta.N`) 不开新节**。
 > 滚动 prerelease 包（`{X.Y.Z}-main.{sha}`）由 `.github/workflows/release.yml` 在 `push: branches: [main]` 时自动产出，**不打 git tag**。下游消费方用 floating range 引用。
 
+### 新增
+
+- **`AddFeivooGamingServer<THandler, TAuth>` 注册 3 个新 RPC** ([#7](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/7))：`ChannelConfigQuery` / `ChannelMemberPointBalanceQuery` / `ChannelMemberCashbackBalanceQuery`。新增 3 个 `where IRpcHandler<...>` 约束、3 个 `RegisterRequest<...>()`、3 个 `AddRpcHandler<...>()`。
+- **`GamingClient` 客户端 MessagingChannel 同步注册新 3 个 RPC** ([#7](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/7))。
+- 上一次 PR #3 / #5 / #6 漏了这步导致服务端虽然实现了 `IRpcHandler` 但 Vertex 找不到 dispatch 路径，运行时报 `No RPC handler registered for 'feivoo.gaming.ChannelConfigQuery'`；本 PR 修复。
+
 ### 基础设施
 
 - `release.yml` 改造为 trunk-based 滚动 publish ([#5](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/5))：
