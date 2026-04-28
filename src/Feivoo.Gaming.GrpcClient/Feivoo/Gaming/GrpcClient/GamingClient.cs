@@ -140,6 +140,9 @@ public sealed class GamingClient : IAsyncDisposable
             reg.RegisterRequest<ChannelMemberRecentOrderQuery, ChannelMemberRecentOrderQueryAck>();
             reg.RegisterRequest<ChannelMemberRebateClaim, ChannelMemberRebateClaimAck>();
             reg.RegisterRequest<ChannelMemberAllRebatesClaim, ChannelMemberAllRebatesClaimAck>();
+            reg.RegisterRequest<ChannelMemberPointBalanceQuery, ChannelMemberPointBalanceQueryAck>();
+            reg.RegisterRequest<ChannelMemberCashbackBalanceQuery, ChannelMemberCashbackBalanceQueryAck>();
+            reg.RegisterRequest<ChannelConfigQuery, ChannelConfigQueryAck>();
             reg.RegisterRequest<WaitingOrderListQuery, WaitingOrderListQueryAck>();
             reg.RegisterRequest<LotteryGameQuery, LotteryGameQueryAck>();
             reg.RegisterRequest<LotteryGameList, LotteryGameListAck>();
