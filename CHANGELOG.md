@@ -4,13 +4,20 @@
 
 ## [未发布]
 
-## [2.2.0-rc.1] - 2026-04-29
+> 工作流（参考 [组织级 CLAUDE.md §7](../CLAUDE.md)）：每个 PR 合 main 时作者在此段追加条目并带 PR 链接 `[#N](url)`；打 stable tag `vX.Y.Z` 时把本节标题改成 `[X.Y.Z] - YYYY-MM-DD`，再开一个空的 `[未发布]`。**prerelease tag (`-rc.N` / `-beta.N`) 不开新节**。
+> 滚动 prerelease 包（`{X.Y.Z}-main.{sha}`）由 `.github/workflows/release.yml` 在 `push: branches: [main]` 时自动产出，**不打 git tag**。下游消费方用 floating range 引用。
 
-预发布版（prerelease）：服务端实现 + l8-game-server 集成验证用。验证通过后才升 stable `v2.2.0`。
+### 基础设施
+
+- `release.yml` 改造为 trunk-based 滚动 publish ([#5](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/5))：
+  - `push: branches: [main]` 触发 → publish `{Major}.{Minor}.{Patch}-main.{sha:0..7}` prerelease 包到 GitHub Packages（NuGet feed），下游 `Version="2.2.0-main.*"` floating range 自动 restore 到最新
+  - `push: tags: v*` 触发 → publish `{Major}.{Minor}.{Patch}` stable 包（tag 不带 `-` 时强制 `StabilizePackageVersion=true` 走 stable）
+  - `pull_request` 触发 → 仅 build/pack 验证，不 publish（避免污染 NuGet feed）
+  - 版本号由 workflow 动态计算并通过 `dotnet pack /p:Version=$VERSION /p:PackageVersion=$VERSION` 注入；不再依赖 `eng/Versions.props` 里 hardcoded `<PackageVersion>` 公式
 
 ### 协议对齐（基于 gaming-protos 1.3.0）
 
-- **3 个新 RPC 自动暴露**（protobuf 生成代码自动跟进，SDK 上层无需新增 wrapper）：
+- **3 个新 RPC 自动暴露**（protobuf 生成代码自动跟进，SDK 上层无需新增 wrapper），来自 [#3](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/3)：
   - `ChannelConfigQuery` (slot 40) → `ChannelConfigQueryAck { ChannelConfig config }`
   - `ChannelMemberPointBalanceQuery` (slot 41) → `ChannelMemberPointBalanceQueryAck { repeated PointBalance balances }`
   - `ChannelMemberCashbackBalanceQuery` (slot 42) → `ChannelMemberCashbackBalanceQueryAck { repeated CashbackBalance balances }`
