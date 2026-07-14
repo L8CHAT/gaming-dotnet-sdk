@@ -10,6 +10,10 @@
 
 ### Changed
 
+- **版本基线 1.0.0 → 1.1.0**：NuGet 浮动范围语义中正式版 `1.0.0` 大于自身任何预发版，`1.0.0` stable 发布后消费方的 `1.0.0-main.*` 浮动一直解析到 stable、main 滚动包实际不可达。基线抬到下个 milestone，main 构建发 `1.1.0-main.*`，浮动恢复生效；消费方（Gaming）同步把浮动范围改为 `1.1.0-main.*` [#13](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/13)
+
+### Changed
+
 - protos submodule → main（[gaming-protos#10](https://github.com/L8CHAT/gaming-protos/pull/10)）：`ChannelConfig.betting_mode` + `BettingMode` 枚举 [#11](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/11)
 
 ## [v1.0.0] - 2026-05-02
