@@ -8,6 +8,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- protos submodule → main（[gaming-protos#10](https://github.com/L8CHAT/gaming-protos/pull/10)）：`ChannelConfig.betting_mode` + `BettingMode` 枚举 [#11](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/11)
+
 ## [v1.0.0] - 2026-05-02
 
 Gaming .NET SDK 首个正式 release，对接 [gaming-protos v1.0.0](https://github.com/L8CHAT/gaming-protos/releases/tag/v1.0.0) + `gaming-go-sdk v1.0.0` + `Feivoo.Gaming` 服务端。
