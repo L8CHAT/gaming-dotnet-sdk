@@ -14,6 +14,7 @@
 
 ### Changed
 
+- protos submodule → main（[gaming-protos#12](https://github.com/L8CHAT/gaming-protos/pull/12)）：`OrderSettlement.effective_turnover` 有效流水字段（平台结算按包号/对冲检测裁决后随 OrderSettle 下发，纯增量） [#14](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/14)
 - protos submodule → main（[gaming-protos#10](https://github.com/L8CHAT/gaming-protos/pull/10)）：`ChannelConfig.betting_mode` + `BettingMode` 枚举 [#11](https://github.com/L8CHAT/gaming-dotnet-sdk/pull/11)
 
 ## [v1.0.0] - 2026-05-02
